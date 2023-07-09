@@ -96,7 +96,6 @@ func GetToken(client *http.Client) (string, *OnError) {
 	}
 	APIToken := Deez.Results.DeezToken
 
-	debug("Display the Token %s", APIToken)
 	return APIToken, nil
 }
 
@@ -130,10 +129,9 @@ func DecryptMedia(stream io.Reader, id, FName string, streamLen int64) (*bytes.B
 	errc := make(chan error)
 	var err error
 	var destBuffer bytes.Buffer // final Product
-	debug("resp Body Size: %v", streamLen)
 	for position, i := 0, 0; position < int(streamLen); position, i = position+chunkSize, i+1 {
 		func(i, position int, streamLen int64, stream io.Reader) {
-			debug("Loop %v started", i)
+
 			var chunkString []byte
 			// check if stream is of 2048
 			if (int(streamLen) - position) >= 2048 {
@@ -148,7 +146,6 @@ func DecryptMedia(stream io.Reader, id, FName string, streamLen int64) (*bytes.B
 			if i%3 > 0 || chunkSize < 2048 {
 				chunkString = buf
 			} else { //Decrypt and then write to destBuffer
-				debug("decrypting at loop: %v", i)
 				chunkString, err = BFDecrypt(buf, bfKey)
 				if err != nil {
 					errc <- errors.Wrapf(err, "error at loop %v", i)
@@ -157,16 +154,13 @@ func DecryptMedia(stream io.Reader, id, FName string, streamLen int64) (*bytes.B
 			if _, err := destBuffer.Write(chunkString); err != nil {
 				errc <- errors.Wrapf(err, "error at loop %v", i)
 			}
-			debug("Current DecyptMedia byte: %v/%v loop: %v chunkSize: %v", position, int(streamLen), i, chunkSize)
 		}(i, position, streamLen, stream)
 	}
 	for {
 		select {
 		case err = <-errc:
-			debug("Got Error")
 			return nil, err
 		default:
-			debug("Default")
 			wg.Wait()
 			return &destBuffer, nil
 		}
