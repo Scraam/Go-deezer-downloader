@@ -59,8 +59,8 @@ func addQs(req *http.Request, args ...string) *http.Request {
 	return req
 }
 
-// GetBlowFishKey get the BlowFishkey for decryption
-func GetBlowFishKey(id string) string {
+// getBlowFishKey get the BlowFishkey for decryption
+func getBlowFishKey(id string) string {
 	Secret := "g4el58wc0zvf9na1"
 	md5Sum := md5.Sum([]byte(id))
 	idM5 := fmt.Sprintf("%x", md5Sum)
@@ -73,8 +73,8 @@ func GetBlowFishKey(id string) string {
 	return BFKey
 }
 
-// GetToken get the login token
-func GetToken(client *http.Client) (string, *OnError) {
+// getToken get the login token
+func getToken(client *http.Client) (string, *OnError) {
 	Deez := &DeezStruct{}
 	args := []string{"null", "deezer.getUserData"}
 	reqs, err := newRequest(APIUrl, "GET", nil)
@@ -99,8 +99,8 @@ func GetToken(client *http.Client) (string, *OnError) {
 	return APIToken, nil
 }
 
-// DecryptDownload Get the encrypted download link
-func DecryptDownload(md5Origin, songID, format, mediaVersion string) (string, error) {
+// decryptDownload Get the encrypted download link
+func decryptDownload(md5Origin, songID, format, mediaVersion string) (string, error) {
 	urlPart := md5Origin + "¤" + format + "¤" + songID + "¤" + mediaVersion
 	data := bytes.Replace([]byte(urlPart), []byte("¤"), []byte{164}, -1)
 	md5SumVal := fmt.Sprintf("%x", md5.Sum(data))
@@ -120,12 +120,12 @@ func DecryptDownload(md5Origin, songID, format, mediaVersion string) (string, er
 		nil
 }
 
-// DecryptMedia decrypts the encrypted media that is returned by Deezer's server
-func DecryptMedia(stream io.Reader, id, FName string, streamLen int64) (*bytes.Buffer, error) {
+// decryptMedia decrypts the encrypted media that is returned by Deezer's server
+func decryptMedia(stream io.Reader, id, FName string, streamLen int64) (*bytes.Buffer, error) {
 	// fmt.Println("Gopher is decrypting the media file")
 	var wg sync.WaitGroup
 	chunkSize := 2048
-	bfKey := GetBlowFishKey(id)
+	bfKey := getBlowFishKey(id)
 	errc := make(chan error)
 	var err error
 	var destBuffer bytes.Buffer // final Product

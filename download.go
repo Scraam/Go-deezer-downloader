@@ -22,17 +22,17 @@ const (
 	Domain = "https://www.deezer.com"
 )
 
-func GetAudioBuffer(id string, usertoken string) *bytes.Buffer {
+func Download(id string, usertoken string) *bytes.Buffer {
 	client, err := login(usertoken)
 	if err != nil {
 		log.Fatalf("%s: %v", err.Message, err.Error)
 	}
-	downloadURL, FName, client, err := GetUrlDownload(id, client)
+	downloadURL, FName, client, err := getUrlDownload(id, client)
 	if err != nil {
 		log.Fatalf("%s: %v", err.Message, err.Error)
 	}
 
-	buf, err := GetAudioFile(downloadURL, id, FName, client)
+	buf, err := getAudioFile(downloadURL, id, FName, client)
 	if err != nil {
 		log.Fatalf("%s and %v", err.Message, err.Error)
 	}
@@ -117,12 +117,12 @@ func addCookies(client *http.Client, CookieURL *url.URL, usertoken string) {
 
 }
 
-// GetUrlDownload get the url for the requested track
-func GetUrlDownload(id string, client *http.Client) (string, string, *http.Client, *OnError) {
+// getUrlDownload get the url for the requested track
+func getUrlDownload(id string, client *http.Client) (string, string, *http.Client, *OnError) {
 	// fmt.Println("Getting Download url")
 	jsonTrack := &DeezTrack{}
 
-	APIToken, _ := GetToken(client)
+	APIToken, _ := getToken(client)
 
 	jsonPrep := `{"sng_id":"` + id + `"}`
 	jsonStr := []byte(jsonPrep)
@@ -167,7 +167,7 @@ func GetUrlDownload(id string, client *http.Client) (string, string, *http.Clien
 	artName := jsonTrack.Results.DATA.ArtName
 	FName := fmt.Sprintf("%s - %s.mp3", songTitle, artName)
 
-	downloadURL, err := DecryptDownload(md5Origin, songID, format, mediaVersion)
+	downloadURL, err := decryptDownload(md5Origin, songID, format, mediaVersion)
 	if err != nil {
 		return "", "", nil, &OnError{err, "Error Getting DownloadUrl"}
 	}
@@ -175,8 +175,8 @@ func GetUrlDownload(id string, client *http.Client) (string, string, *http.Clien
 	return downloadURL, FName, client, nil
 }
 
-// GetAudioFile gets the audio file from deezer server
-func GetAudioFile(downloadURL, id, FName string, client *http.Client) (*bytes.Buffer, *OnError) {
+// getAudioFile gets the audio file from deezer server
+func getAudioFile(downloadURL, id, FName string, client *http.Client) (*bytes.Buffer, *OnError) {
 	// fmt.Println("Gopher's getting the audio File")
 	req, err := newRequest(downloadURL, "GET", nil)
 	if err != nil {
@@ -188,7 +188,7 @@ func GetAudioFile(downloadURL, id, FName string, client *http.Client) (*bytes.Bu
 		return nil, &OnError{err, "Error during GetAudioFile response"}
 	}
 	defer resp.Body.Close()
-	buf, err := DecryptMedia(resp.Body, id, FName, resp.ContentLength)
+	buf, err := decryptMedia(resp.Body, id, FName, resp.ContentLength)
 	if err != nil {
 		return nil, &OnError{err, "Error during DecryptMedia"}
 	}

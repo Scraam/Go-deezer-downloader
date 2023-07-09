@@ -143,7 +143,7 @@ func TestBlowFish(t *testing.T) {
 
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
-			BFKey := GetBlowFishKey(tc.in)
+			BFKey := getBlowFishKey(tc.in)
 
 			Equals(t, BFKey, tc.out)
 		})
