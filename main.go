@@ -9,9 +9,7 @@ import (
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
-	"os"
 	"strconv"
-	"strings"
 	"time"
 )
 
@@ -24,7 +22,7 @@ const (
 	Domain = "https://www.deezer.com"
 )
 
-func main() {
+func GetAudioBytes() *bytes.Buffer {
 	id := cfg.ID
 	client, err := Login()
 	if err != nil {
@@ -39,15 +37,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("%s and %v", err.Message, err.Error)
 	}
-	if cfg.File {
-		out, err := os.Create(strings.ReplaceAll(FName, "/", "-"))
-		if err != nil {
-			log.Fatal(err)
-		}
-		buf.WriteTo(out)
-	} else {
-		buf.WriteTo(os.Stdout)
-	}
+	return buf
 }
 
 // Login will login the user with the provided credentials
