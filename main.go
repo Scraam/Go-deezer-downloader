@@ -22,7 +22,7 @@ const (
 	Domain = "https://www.deezer.com"
 )
 
-func GetAudioBytes() *bytes.Buffer {
+func GetAudioBuffer() *bytes.Buffer {
 	id := cfg.ID
 	client, err := Login()
 	if err != nil {
