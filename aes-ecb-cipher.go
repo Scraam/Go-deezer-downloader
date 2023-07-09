@@ -8,7 +8,7 @@
 // plaintext block.
 
 // See NIST SP 800-38A, pp 08-09
-package main
+package download
 
 import (
 	"bytes"
