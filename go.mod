@@ -1,4 +1,4 @@
-module github.com/Scraam/go-decrypt-deezer
+module github.com/Scraam/Go-deezer-downloader
 
 require (
 	github.com/pkg/errors v0.9.1
